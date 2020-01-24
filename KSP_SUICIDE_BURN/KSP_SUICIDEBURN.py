@@ -1,11 +1,12 @@
-#-------------------------------------------------------------#
-#                                      KSP SUICIDEBURN        #
-#                                      Github:@WeDias         #
-#                                   Licença: MIT License      #
-#                               Copyright © 2020 Wesley Dias  #
-#-------------------------------------------------------------#
+# ------------------------------------------------------------- #
+#                                       KSP_SUICIDEBURN         #
+#                                       Github:@WeDias          #
+#                                    Licença: MIT License       #
+#                                Copyright © 2020 Wesley Dias   #
+# ------------------------------------------------------------- #
 
 import krpc
+from time import sleep
 
 print('=' * 170)
 print('''
@@ -18,7 +19,7 @@ print('''
 888  Y88b         "888 888                   "888 888     888   888  888    888  888   888    888 888             888    888 888     888 888 T88b   888  Y88888 
 888   Y88b  Y88b  d88P 888             Y88b  d88P Y88b. .d88P   888  Y88b  d88P  888   888  .d88P 888             888   d88P Y88b. .d88P 888  T88b  888   Y8888 
 888    Y88b  "Y8888P"  888              "Y8888P"   "Y88888P"  8888888 "Y8888P" 8888888 8888888P"  8888888888      8888888P"   "Y88888P"  888   T88b 888    Y888 
-                                                                                                                                                                BY: WeDias
+                                                                                                                                                                BY: WEDIAS
 ''')
 print('=' * 170)
 
@@ -26,24 +27,43 @@ print('=' * 170)
 conn = krpc.connect()
 vessel = conn.space_center.active_vessel
 
+# Definindo as constantes
 constante_gravitacional = 6.674184 * 10 ** -11
 massa_planeta = vessel.orbit.body.mass
 raio_planeta = vessel.orbit.body.equatorial_radius
-
+nome_astro = vessel.orbit.body.name
+tem_atmosfera = vessel.orbit.body.has_atmosphere
+tamanho_atmosfera = 0
+if tem_atmosfera:
+    tamanho_atmosfera = vessel.orbit.body.atmosphere_depth
 
 try:
+    vessel.control.sas = True
+    vessel.control.rcs = True
+    sleep(0.1)
     vessel.control.sas_mode = vessel.control.sas_mode.retrograde
-    print('Nave Com SAS_Retrograde, controle automatico ativado')
+    print('NAVE COM SAS_RETROGRADE, PILOTO AUTOMATICO ATIVADO')
+    print('SAS = [ONLINE]\nRCS = [ONLINE]')
+
+    # Contagem regressiva de 10s
+    for c in range(10, 0, - 1):
+        print(f'\rCONTAGEM REGRESSIVA: {c}', end='')
+        sleep(1)
+    print('\rPILOTO AUTIOMATICO = [ONLINE]')
+
 except:
-    print('Nave sem SAS_Retrograde, controle manualmente a nave até o retrograde, e o software faz o resto')
+    print('NAVE SEM SAS_RETROGRADE, PILOTO SEMI-AUTOMATICO ATIVADO. PILOTO MANTENHA A NAVE NO RETROGRADE')
+    print('PILOTO AUTOMATICO = [OFFLINE]')
 
-print('SUICIDEBURN = ON')
+print('\rSUICIDEBURN = [ONLINE]')
 
-gear = False
-vessel.control.brakes = True
+# Instrucoes de pouso | Computador de bordo
+gear = caindo = False
 while True:
+    # Dados de telemetria
     altura_mar = vessel.flight().mean_altitude
     altura_chao = vessel.flight().surface_altitude
+    periastro = vessel.orbit.periapsis_altitude
     vel_superficie = vessel.flight(vessel.orbit.body.reference_frame).speed
     retrograde = vessel.flight().retrograde
     aceleracao_gravidade = constante_gravitacional * massa_planeta / (raio_planeta + altura_mar) ** 2
@@ -51,21 +71,59 @@ while True:
     aceleracao = twr * aceleracao_gravidade
     tempo_ate_chao = altura_chao / vel_superficie
     tempo_de_queima = vel_superficie / aceleracao
-    print(f'\rAceleracao:{aceleracao:.2f}m/s^2 Altura:{altura_chao:.2f}m | Velocidade:{vel_superficie:.2f}m/s | TempoAteChao:{int(tempo_ate_chao)}s | TempoDeQueima:{int(tempo_de_queima)}s', end='')
+    situacao = vessel.situation.name
+    print(f'\rACELERACAO:{aceleracao:.2f}M/S^2 | ALTURA:{altura_chao:.2f}M | VELOCIDADE:{vel_superficie:.2f}M/S | TEMPOATECHAO:{int(tempo_ate_chao)}S | TEMPODEQUEIMA:{int(tempo_de_queima)}S | SITU:{situacao.upper()}', end='')
 
+    # Ativacao de paraquedas
+    if tem_atmosfera and altura_mar <= (tamanho_atmosfera / 4):
+        vessel.control.parachutes = True
+
+    # Pernas de pouso e luzes
     if tempo_ate_chao <= 3 and not gear:
         vessel.control.gear = True
         vessel.control.lights = True
 
-    if vessel.available_thrust == 0:
+    # Separacao de estagio
+    if vessel.available_thrust == 0 and vessel.control.current_stage != 0:
         print(f'\rSEPARAÇÃO DE ESTÁGIO')
         vessel.control.activate_next_stage()
 
-    if tempo_ate_chao <= tempo_de_queima + 0.5:
-        vessel.control.throttle = 1
+    # controle da pontencia dos motores
+    if not caindo and situacao in ['orbiting', 'sub_orbital', 'flying']:
+        if tem_atmosfera:
+            vessel.control.brakes = True
+            if periastro >= (tamanho_atmosfera - 10000):
+                vessel.control.throttle = 1
+            else:
+                vessel.control.throttle = 0
+        else:
+            if periastro <= 0:
+                sleep(1)
+                vessel.control.throttle = 0
+                caindo = True
+            else:
+                vessel.control.throttle = 1
 
+    elif tempo_ate_chao <= tempo_de_queima + 0.5:
+        if tem_atmosfera:
+            if tempo_ate_chao <= tempo_de_queima + 0.5 and altura_mar <= (tamanho_atmosfera / 4):
+                vessel.control.throttle = 1
+            else:
+                vessel.control.throttle = 0
+        else:
+            vessel.control.throttle = 1
+
+    # Pouso com sucesso !
     else:
         vessel.control.throttle = 0
         if vessel.situation.name in ['landed', 'splashed']:
-            print('\nPousei')
+            vessel.auto_pilot.engage()
+            vessel.auto_pilot.target_pitch_and_heading(90, 90)
+            print(f'\nA NAVE "{vessel.name.upper()}" POUSOU COM SUCESSO EM {nome_astro.upper()}')
+            input('PRESSIONE ENTER PARA VOLTAR')
+            vessel.auto_pilot.disengage()
+            vessel.control.sas = True
+            if vessel.recoverable:
+                input('PRESSIONE ENTER PARA VOLTAR E RECUPERAR A NAVE')
+                vessel.recover()
             break
