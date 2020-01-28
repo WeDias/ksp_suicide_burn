@@ -34,6 +34,7 @@ raio_planeta = vessel.orbit.body.equatorial_radius
 nome_astro = vessel.orbit.body.name
 tem_atmosfera = vessel.orbit.body.has_atmosphere
 tamanho_atmosfera = 0
+
 if tem_atmosfera:
     tamanho_atmosfera = vessel.orbit.body.atmosphere_depth
 
@@ -90,40 +91,54 @@ while True:
 
     # controle da pontencia dos motores
     if not caindo and situacao in ['orbiting', 'sub_orbital', 'flying']:
+
         if tem_atmosfera:
             vessel.control.brakes = True
+
             if periastro >= (tamanho_atmosfera - 10000):
                 vessel.control.throttle = 1
+
             else:
                 vessel.control.throttle = 0
+                caindo = True
         else:
+
             if periastro <= 0:
                 sleep(1)
                 vessel.control.throttle = 0
                 caindo = True
+
             else:
                 vessel.control.throttle = 1
 
     elif tempo_ate_chao <= tempo_de_queima + 0.5:
+
         if tem_atmosfera:
+
             if tempo_ate_chao <= tempo_de_queima + 0.5 and altura_mar <= (tamanho_atmosfera / 4):
                 vessel.control.throttle = 1
+
             else:
                 vessel.control.throttle = 0
+
         else:
             vessel.control.throttle = 1
 
     # Pouso com sucesso !
     else:
         vessel.control.throttle = 0
+
         if vessel.situation.name in ['landed', 'splashed']:
             vessel.auto_pilot.engage()
             vessel.auto_pilot.target_pitch_and_heading(90, 90)
             print(f'\nA NAVE "{vessel.name.upper()}" POUSOU COM SUCESSO EM {nome_astro.upper()}')
-            input('PRESSIONE ENTER PARA VOLTAR')
-            vessel.auto_pilot.disengage()
-            vessel.control.sas = True
+
             if vessel.recoverable:
                 input('PRESSIONE ENTER PARA VOLTAR E RECUPERAR A NAVE')
                 vessel.recover()
+
+            else:
+                vessel.auto_pilot.disengage()
+                vessel.control.sas = True
+                input('PRESSIONE ENTER PARA VOLTAR')
             break
