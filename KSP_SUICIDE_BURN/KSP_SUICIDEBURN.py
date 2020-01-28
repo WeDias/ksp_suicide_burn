@@ -138,7 +138,7 @@ while True:
                 vessel.recover()
 
             else:
+                input('PRESSIONE ENTER PARA VOLTAR')
                 vessel.auto_pilot.disengage()
                 vessel.control.sas = True
-                input('PRESSIONE ENTER PARA VOLTAR')
             break
