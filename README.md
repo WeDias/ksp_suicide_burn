@@ -15,6 +15,11 @@ O kRPC permite controlar o Kerbal Space Program a partir de scripts executados f
 Ele vem com bibliotecas clientes para muitas linguagens populares, incluindo C # , C ++ , Java , Lua e Python.
 E neste caso escolhi usar Python.
 
+### Resultado
+https://youtu.be/DabJUuM4U5I
+
+https://youtu.be/IuPKfO5xKKA
+
 ---
 ###### ⚠ Projeto pausado temporariamente devido a volta às aulas.
 ###### ✏️ Desenvolvido por: [*Wesley Dias*](https://github.com/WeDias)
