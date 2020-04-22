@@ -17,10 +17,10 @@ E neste caso escolhi usar Python.
 
 ### Resultado
 https://youtu.be/DabJUuM4U5I
-![https://youtu.be/DabJUuM4U5I](https://github.com/WeDias/ksp_suicide_burn/blob/master/ignorar/scb1.png)
+[![scb1](https://github.com/WeDias/ksp_suicide_burn/blob/master/ignorar/scb1.png)](https://youtu.be/DabJUuM4U5I)
 
 https://youtu.be/IuPKfO5xKKA
-![https://youtu.be/IuPKfO5xKKA](https://github.com/WeDias/ksp_suicide_burn/blob/master/ignorar/scb2.png)
+[![scb2](https://github.com/WeDias/ksp_suicide_burn/blob/master/ignorar/scb2.png)](https://youtu.be/IuPKfO5xKKA)
 
 ---
 ###### ⚠ Projeto pausado temporariamente devido a volta às aulas.
