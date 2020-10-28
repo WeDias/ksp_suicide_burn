@@ -1,7 +1,6 @@
-<img src="https://github.com/WeDias/ksp_orbiter/blob/master/ignorar/Anotacao.gif" width="200"> <img src="https://github.com/WeDias/ksp_suicide_burn/blob/master/ignorar/Pouso.gif" width="450">
-
 # ksp_suicide_burn
 Software para controle de foguete, do jogo Kerbal Space Program, com o proposito de realizar a queima suicida em qualquer planeta ou lua do jogo, utilizando o mod KRPC
+![res](https://github.com/WeDias/ksp_suicide_burn/blob/master/ignorar/Pouso.gif)
 
 ### Sobre o Kerbal Space Program:  
 
